@@ -9,8 +9,12 @@ import { JSONPath } from 'jsonpath-plus';
 import Ellipsis from 'components/common/Ellipsis/Ellipsis';
 import WarningRedIcon from 'components/common/Icons/WarningRedIcon';
 import Tooltip from 'components/common/Tooltip/Tooltip';
+import useAppParams from 'lib/hooks/useAppParams';
+import { RouteParamsClusterTopic } from 'lib/paths';
+import { reproduceMessage, ReproduceMessageRequest } from 'lib/hooks/api/reproduceMessage';
 
 import MessageContent from './MessageContent/MessageContent';
+import ReproduceMessageModal from './ReproduceMessageModal';
 import * as S from './MessageContent/MessageContent.styled';
 
 export interface PreviewFilter {
@@ -42,6 +46,9 @@ const Message: React.FC<Props> = ({
   contentFilters,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isReproduceModalOpen, setIsReproduceModalOpen] = React.useState(false);
+  const { clusterName, topicName } = useAppParams<RouteParamsClusterTopic>();
+  
   const savedMessageJson = {
     Value: content,
     Offset: offset,
@@ -60,6 +67,15 @@ const Message: React.FC<Props> = ({
   const toggleIsOpen = () => setIsOpen(!isOpen);
 
   const [vEllipsisOpen, setVEllipsisOpen] = React.useState(false);
+
+  const handleReproduceMessage = async (request: ReproduceMessageRequest) => {
+    await reproduceMessage(clusterName, request.targetTopic || '', {
+      ...request,
+      sourceTopic: topicName,
+      sourcePartition: partition,
+      sourceOffset: offset,
+    });
+  };
 
   const getParsedJson = (jsonValue: string) => {
     try {
@@ -142,6 +158,12 @@ const Message: React.FC<Props> = ({
                 Copy to clipboard
               </DropdownItem>
               <DropdownItem onClick={saveFile}>Save as a file</DropdownItem>
+              <DropdownItem onClick={(e) => {
+                e.stopPropagation();
+                setIsReproduceModalOpen(true);
+              }}>
+                Reproduce to topic...
+              </DropdownItem>
             </Dropdown>
           )}
         </td>
@@ -159,6 +181,18 @@ const Message: React.FC<Props> = ({
           valueSerde={valueSerde}
         />
       )}
+      <ReproduceMessageModal
+        clusterName={clusterName}
+        sourceTopic={topicName}
+        partition={partition}
+        offset={offset}
+        messageKey={key}
+        messageValue={content}
+        headers={headers}
+        isOpen={isReproduceModalOpen}
+        onClose={() => setIsReproduceModalOpen(false)}
+        onReproduce={handleReproduceMessage}
+      />
     </>
   );
 };
