@@ -763,6 +763,41 @@ paths:
         404:
           description: Not found
 
+  /api/clusters/{clusterName}/topics/{targetTopicName}/reproduce:
+    post:
+      tags:
+        - Messages
+      summary: reproduceMessage
+      description: Reproduce a single message from a DLT (dead-letter topic) to a target topic. Preserves key, value, headers, and optionally timestamp/partition.
+      operationId: reproduceMessage
+      parameters:
+        - name: clusterName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: targetTopicName
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReproduceMessageRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReproduceMessageResponse'
+        400:
+          description: Bad Request - Invalid input
+        404:
+          description: Not found
+
   /api/clusters/{clusterName}/topics/{topicName}/activeproducers:
     get:
       tags:
@@ -2772,6 +2807,74 @@ components:
           nullable: true
       required:
         - partition
+
+    ReproduceMessageRequest:
+      type: object
+      description: Request to reproduce a single message from a DLT to a target topic
+      properties:
+        sourceTopic:
+          type: string
+          description: Source topic name (DLT) - required if fetching message by reference
+          nullable: true
+        sourcePartition:
+          type: integer
+          description: Source partition - required if fetching message by reference
+          nullable: true
+        sourceOffset:
+          type: integer
+          format: int64
+          description: Source offset - required if fetching message by reference
+          nullable: true
+        key:
+          type: string
+          description: Base64-encoded message key - required if providing full message data
+          nullable: true
+        value:
+          type: string
+          description: Base64-encoded message value - required if providing full message data
+          nullable: true
+        headers:
+          type: object
+          description: Message headers to preserve
+          additionalProperties:
+            type: string
+        targetPartition:
+          type: integer
+          description: Target partition (optional, will use default partitioner if not specified)
+          nullable: true
+        preserveTimestamp:
+          type: boolean
+          description: Whether to preserve the original timestamp
+          default: false
+        dryRun:
+          type: boolean
+          description: If true, validate the request without actually producing the message
+          default: false
+
+    ReproduceMessageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the message reproduction was successful
+        partition:
+          type: integer
+          description: Partition where the message was produced
+        offset:
+          type: integer
+          format: int64
+          description: Offset of the produced message
+        timestamp:
+          type: integer
+          format: int64
+          description: Timestamp of the produced message
+        dryRun:
+          type: boolean
+          description: Whether this was a dry run
+        errorMessage:
+          type: string
+          description: Error message if reproduction failed
+          nullable: true
 
     TopicMessageEvent:
       type: object
