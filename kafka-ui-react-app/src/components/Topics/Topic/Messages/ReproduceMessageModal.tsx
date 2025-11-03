@@ -3,6 +3,7 @@ import { Button } from 'components/common/Button/Button';
 import Input from 'components/common/Input/Input';
 import { InputLabel } from 'components/common/Input/InputLabel.styled';
 import toast from 'react-hot-toast';
+import { ReproduceMessageRequest } from 'lib/types/reproduceMessage';
 import * as S from './ReproduceMessageModal.styled';
 
 interface ReproduceMessageModalProps {
@@ -16,19 +17,6 @@ interface ReproduceMessageModalProps {
   isOpen: boolean;
   onClose: () => void;
   onReproduce: (request: ReproduceMessageRequest) => Promise<void>;
-}
-
-export interface ReproduceMessageRequest {
-  targetTopic?: string;
-  sourceTopic?: string;
-  sourcePartition?: number;
-  sourceOffset?: number;
-  key?: string;
-  value?: string;
-  headers?: { [key: string]: string };
-  targetPartition?: number;
-  preserveTimestamp?: boolean;
-  dryRun?: boolean;
 }
 
 const ReproduceMessageModal: React.FC<ReproduceMessageModalProps> = ({
@@ -76,10 +64,10 @@ const ReproduceMessageModal: React.FC<ReproduceMessageModalProps> = ({
     try {
       // Encode key and value to base64
       const keyBase64 = editableKey
-        ? btoa(unescape(encodeURIComponent(editableKey)))
+        ? btoa(new TextEncoder().encode(editableKey).reduce((data, byte) => data + String.fromCharCode(byte), ''))
         : undefined;
       const valueBase64 = editableValue
-        ? btoa(unescape(encodeURIComponent(editableValue)))
+        ? btoa(new TextEncoder().encode(editableValue).reduce((data, byte) => data + String.fromCharCode(byte), ''))
         : undefined;
 
       const request: ReproduceMessageRequest = {
@@ -117,7 +105,7 @@ const ReproduceMessageModal: React.FC<ReproduceMessageModalProps> = ({
 
   return (
     <S.Wrapper role="dialog" aria-label="Reproduce Message Dialog">
-      <S.Overlay onClick={onClose} aria-hidden="true" role="button" />
+      <S.Overlay onClick={onClose} aria-hidden="true" />
       <S.Modal>
         <S.Header>Reproduce Message to Target Topic</S.Header>
         <S.Form onSubmit={handleSubmit}>

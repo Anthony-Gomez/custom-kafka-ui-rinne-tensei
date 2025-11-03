@@ -11,7 +11,8 @@ import WarningRedIcon from 'components/common/Icons/WarningRedIcon';
 import Tooltip from 'components/common/Tooltip/Tooltip';
 import useAppParams from 'lib/hooks/useAppParams';
 import { RouteParamsClusterTopic } from 'lib/paths';
-import { reproduceMessage, ReproduceMessageRequest } from 'lib/hooks/api/reproduceMessage';
+import { reproduceMessage } from 'lib/hooks/api/reproduceMessage';
+import { ReproduceMessageRequest } from 'lib/types/reproduceMessage';
 
 import MessageContent from './MessageContent/MessageContent';
 import ReproduceMessageModal from './ReproduceMessageModal';

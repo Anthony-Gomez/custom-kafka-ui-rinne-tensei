@@ -4,6 +4,7 @@ import com.provectus.kafka.ui.exception.ValidationException;
 import com.provectus.kafka.ui.model.KafkaCluster;
 import com.provectus.kafka.ui.model.ReproduceMessageRequestDTO;
 import com.provectus.kafka.ui.model.ReproduceMessageResponseDTO;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Collections;
@@ -203,7 +204,7 @@ public class ReproduceMessageService {
   private Map<String, String> extractHeaders(ConsumerRecord<byte[], byte[]> record) {
     Map<String, String> headers = new HashMap<>();
     for (Header header : record.headers()) {
-      headers.put(header.key(), new String(header.value()));
+      headers.put(header.key(), new String(header.value(), StandardCharsets.UTF_8));
     }
     return headers;
   }
@@ -243,7 +244,7 @@ public class ReproduceMessageService {
       // Add headers
       if (headers != null) {
         for (Map.Entry<String, String> entry : headers.entrySet()) {
-          record.headers().add(new RecordHeader(entry.getKey(), entry.getValue().getBytes()));
+          record.headers().add(new RecordHeader(entry.getKey(), entry.getValue().getBytes(StandardCharsets.UTF_8)));
         }
       }
       

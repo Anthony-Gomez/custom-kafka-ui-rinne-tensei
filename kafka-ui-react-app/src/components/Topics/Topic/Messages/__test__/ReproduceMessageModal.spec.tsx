@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ReproduceMessageModal, {
-  ReproduceMessageRequest,
-} from '../ReproduceMessageModal';
+import { ReproduceMessageRequest } from 'lib/types/reproduceMessage';
+import ReproduceMessageModal from '../ReproduceMessageModal';
 
 describe('ReproduceMessageModal', () => {
   const defaultProps = {

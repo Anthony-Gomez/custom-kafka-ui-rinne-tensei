@@ -1,28 +1,7 @@
 import { BASE_PARAMS } from 'lib/constants';
 import { ClusterName } from 'redux/interfaces';
 import { showServerError } from 'lib/errorHandling';
-
-export interface ReproduceMessageRequest {
-  targetTopic?: string;
-  sourceTopic?: string;
-  sourcePartition?: number;
-  sourceOffset?: number;
-  key?: string;
-  value?: string;
-  headers?: { [key: string]: string };
-  targetPartition?: number;
-  preserveTimestamp?: boolean;
-  dryRun?: boolean;
-}
-
-export interface ReproduceMessageResponse {
-  success: boolean;
-  partition?: number;
-  offset?: number;
-  timestamp?: number;
-  dryRun: boolean;
-  errorMessage?: string;
-}
+import { ReproduceMessageRequest, ReproduceMessageResponse } from 'lib/types/reproduceMessage';
 
 export const reproduceMessage = async (
   clusterName: ClusterName,
